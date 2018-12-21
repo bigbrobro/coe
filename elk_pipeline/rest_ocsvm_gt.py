@@ -1,12 +1,8 @@
-import urllib.parse
 from flask import Flask, jsonify, request
 from signature_detection import SignatureDetector
 import InputLog
-import pickle
-import os
 
 DOMAIN_NAME='example.com'
-log='logs.pickle'
 
 class MyFlask (Flask):
     def __init__(self, import_name, static_path=None, static_url_path=None,
@@ -17,9 +13,6 @@ class MyFlask (Flask):
                        instance_path, instance_relative_config)
 
         print('Initialize Flask')
-        if os.path.exists(log)==True:
-            with open(log, mode='rb') as f:
-                SignatureDetector.df=pickle.load(f)
 
         try:
             file_admin = open("./admin.csv")
@@ -82,13 +75,10 @@ def preds():
     result = SignatureDetector.signature_detect(inputLog)
 
     print(inputLog.get_eventid()+","+inputLog.get_accountname()+","+inputLog.get_clientaddr()+","+inputLog.get_processname())
+    print(result)
 
 
     return result
 
 if __name__ == '__main__':
-    try:
         app.run(host='0.0.0.0')
-    finally:
-        with open(log, mode='wb') as handle:
-            pickle.dump(SignatureDetector.df, handle, protocol=pickle.HIGHEST_PROTOCOL)
