@@ -4,40 +4,25 @@ import InputLog
 
 DOMAIN_NAME='example.com'
 
-class MyFlask (Flask):
-    def __init__(self, import_name, static_path=None, static_url_path=None,
-                 static_folder='static', template_folder='templates',
-                 instance_path=None, instance_relative_config=False):
-        Flask.__init__(self, import_name, static_path, static_url_path,
-                       static_folder, template_folder,
-                       instance_path, instance_relative_config)
+try:
+    file_admin = open("./admin.csv")
+    SignatureDetector.adminlist = file_admin.readlines()
+    file_cmd = open("./command.csv")
+    SignatureDetector.cmdlist = file_cmd.readlines()
+except Exception as e:
+    print(e)
+finally:
+    file_admin.close()
+    file_cmd.close()
 
-        print('Initialize Flask')
+SignatureDetector.adminlist = [s.replace('\n', '') for s in SignatureDetector.adminlist]
+SignatureDetector.cmdlist = [s.replace('\n', '') for s in SignatureDetector.cmdlist]
 
-        try:
-            file_admin = open("./admin.csv")
-            SignatureDetector.adminlist = file_admin.readlines()
-            file_cmd = open("./command.csv")
-            SignatureDetector.cmdlist = file_cmd.readlines()
-        except Exception as e:
-            print(e)
-        finally:
-            file_admin.close()
-            file_cmd.close()
-
-        SignatureDetector.adminlist = [s.replace('\n', '') for s in SignatureDetector.adminlist]
-        SignatureDetector.cmdlist = [s.replace('\n', '') for s in SignatureDetector.cmdlist]
-
-    def __del__(self):
-        print('destructor called')
-
-
-app = MyFlask(__name__)
+app = Flask(__name__)
 
 @app.route('/preds', methods=['POST'])
 def preds():
     global DOMAIN_NAME
-    # loading
     response = jsonify()
     datetime = request.form.get('datetime',None)
     eventid = request.form.get('eventid',None)
